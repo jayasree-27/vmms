@@ -1,15 +1,14 @@
-import { IsUUID,IsInt,Min,Max } from "class-validator";
+import { IsUUID, IsInt, Min, Max } from 'class-validator';
 
-export class CreateSlotDto{
-    @IsUUID()
-    machineId:string;
+export class CreateSlotDto {
+  @IsUUID()
+  machineId: string;
 
-    @IsUUID()
-    productId:string;
+  @IsUUID()
+  productId: string;
 
-    @IsInt()
-    @Min(1)
-    @Max(10)
-    slotNumber:number
+  @IsInt()
+  @Min(1)
+  @Max(10)
+  slotNumber: number;
 }
-

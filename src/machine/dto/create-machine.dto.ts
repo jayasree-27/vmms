@@ -1,16 +1,15 @@
-import {IsString, IsNotEmpty, IsEnum } from 'class-validator';
+import { IsString, IsNotEmpty, IsEnum } from 'class-validator';
 import { MachineStatus } from '../machine.entity';
 
-export class CreateMachineDto{
-    @IsString()
-    @IsNotEmpty()
-    location:string;
+export class CreateMachineDto {
+  @IsString()
+  @IsNotEmpty()
+  location: string;
 
-    @IsString()
-    @IsNotEmpty()
-    serialNumber:string;
+  @IsString()
+  @IsNotEmpty()
+  serialNumber: string;
 
-    @IsEnum(MachineStatus)
-    status?:MachineStatus
+  @IsEnum(MachineStatus)
+  status?: MachineStatus;
 }
-
