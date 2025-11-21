@@ -1,7 +1,6 @@
 import { Injectable, OnModuleDestroy } from '@nestjs/common';
 import { Queue, QueueScheduler } from 'bullmq';
 
-
 @Injectable()
 export class BullMQService implements OnModuleDestroy {
   private purchaseQueue: Queue;
@@ -15,13 +14,13 @@ export class BullMQService implements OnModuleDestroy {
   };
 
   constructor() {
-    this.scheduler=new QueueScheduler('PURCHASE_QUEUE',{
-      connection:this.connection,
-    })
+    this.scheduler = new QueueScheduler('PURCHASE_QUEUE', {
+      connection: this.connection,
+    });
 
     this.purchaseQueue = new Queue('PURCHASE_QUEUE', {
       connection: this.connection,
-    })
+    });
   }
 
   async addPurchaseJob(payload: any) {

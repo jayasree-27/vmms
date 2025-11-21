@@ -1,15 +1,14 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { MachinesModule } from './machine/machine.module';
-import { SlotsModule } from './slot/slots.module';
-import { Machine } from './machine/machine.entity';
-import { Slot } from './slot/slot.entity';
-import { Product } from './product/product.entity';
-import { Category } from './category/category.entity';
-import { CategoryModule } from './category/category.module';
-import { ProductModule } from './product/product.module';
-import { PurchaseModule } from './purchase/purchase.module';
-import { Transaction } from './transactions/transaction.entity'
+import { MachinesModule } from './modules/machine/machine.module';
+import { SlotsModule } from './modules/slot/slots.module';
+import { CategoryModule } from './modules/category/category.module';
+import { ProductModule } from './modules/product/product.module';
+import { PurchaseModule } from './modules/purchase/purchase.module';
+import { UsersModule } from './modules/users/users.module';
+import { RolesModule } from './modules/roles/roles.module';
+import { PermissionsModule } from './modules/permissions/permission.module';
+import { AuthModule } from './modules/auth/auth.module';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -18,16 +17,19 @@ import { Transaction } from './transactions/transaction.entity'
       port: 5432,
       username: 'postgres',
       password: 'Jayasree275',
-      database: 'vending_machine_db',
+      database: 'vmms',
       autoLoadEntities: true,
-      entities: [Machine, Slot, Product, Category,Transaction],
       synchronize: true,
     }),
     MachinesModule,
     SlotsModule,
     CategoryModule,
     ProductModule,
-    PurchaseModule
+    PurchaseModule,
+    UsersModule,
+    RolesModule,
+    PermissionsModule,
+    AuthModule
   ],
 })
 export class AppModule {}
