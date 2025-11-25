@@ -1,5 +1,5 @@
 import { Controller, Get, Param } from '@nestjs/common';
-import { BullMQService } from 'src/services/bullmq-services';
+import { BullMQService } from 'src/common/services/bullmq-services';
 
 @Controller('jobs')
 export class JobsController {

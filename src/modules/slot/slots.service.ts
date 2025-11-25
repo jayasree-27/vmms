@@ -128,79 +128,79 @@ export class SlotsService {
   }
 
   async updateSlot(id: string, dto: UpdateSlotDto) {
-  return this.dataSource.transaction(async manager => {
-    const slot = await manager.findOne(Slot, {
-      where: { id },
-      relations: ['machine', 'product'],
+    return this.dataSource.transaction(async manager => {
+      const slot = await manager.findOne(Slot, {
+        where: { id },
+        relations: ['machine', 'product'],
+      });
+
+      if (!slot) throw new NotFoundException('Slot not found');
+
+      // update product
+      if (dto.productId) {
+        const product = await manager.findOne(Product, {
+          where: { id: dto.productId },
+        });
+
+        if (!product) {
+          throw new NotFoundException('Product not found');
+        }
+
+        slot.product = product;
+      }
+
+      // update slot number
+      if (dto.slotNumber) {
+        const exists = await manager.findOne(Slot, {
+          where: {
+            machine: { id: slot.machine.id },
+            slotNumber: dto.slotNumber,
+          },
+        });
+
+        if (exists) {
+          throw new BadRequestException(
+            `Slot number ${dto.slotNumber} already exists in this machine`
+          );
+        }
+
+        slot.slotNumber = dto.slotNumber;
+      }
+
+      // update stock
+      if (dto.stockQuantity !== undefined) {
+        if (dto.stockQuantity < 0 || dto.stockQuantity > slot.maxCapacity) {
+          throw new BadRequestException(
+            `Stock must be between 0 and ${slot.maxCapacity}`
+          );
+        }
+        slot.stockQuantity = dto.stockQuantity;
+      }
+
+      return manager.save(slot);
+    });
+  }
+
+  async getInventory(machineId: string) {
+    const slots = await this.slotRepo.find({
+      where: { machine: { id: machineId } },
+      relations: ['product'],
+      order: { slotNumber: 'ASC' },
     });
 
-    if (!slot) throw new NotFoundException('Slot not found');
-
-    // update product
-    if (dto.productId) {
-      const product = await manager.findOne(Product, {
-        where: { id: dto.productId },
-      });
-
-      if (!product) {
-        throw new NotFoundException('Product not found');
-      }
-
-      slot.product = product;
-    }
-
-    // update slot number
-    if (dto.slotNumber) {
-      const exists = await manager.findOne(Slot, {
-        where: {
-          machine: { id: slot.machine.id },
-          slotNumber: dto.slotNumber,
-        },
-      });
-
-      if (exists) {
-        throw new BadRequestException(
-          `Slot number ${dto.slotNumber} already exists in this machine`
-        );
-      }
-
-      slot.slotNumber = dto.slotNumber;
-    }
-
-    // update stock
-    if (dto.stockQuantity !== undefined) {
-      if (dto.stockQuantity < 0 || dto.stockQuantity > slot.maxCapacity) {
-        throw new BadRequestException(
-          `Stock must be between 0 and ${slot.maxCapacity}`
-        );
-      }
-      slot.stockQuantity = dto.stockQuantity;
-    }
-
-    return manager.save(slot);
-  });
-}
-
-async getInventory(machineId: string) {
-  const slots = await this.slotRepo.find({
-    where: { machine: { id: machineId } },
-    relations: ['product'],
-    order: { slotNumber: 'ASC' },
-  });
-
-  return slots.map(s => ({
-    slotNumber: s.slotNumber,
-    stock: s.stockQuantity,
-    product: s.product
-      ? {
+    return slots.map(s => ({
+      slotNumber: s.slotNumber,
+      stock: s.stockQuantity,
+      product: s.product
+        ? {
           id: s.product.id,
           name: s.product.name,
           price: s.product.price,
           category: s.product.category?.name,
         }
-      : null,
-  }));
-}
+        : null,
+    }));
+  }
 
 
 }

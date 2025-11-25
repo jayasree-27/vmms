@@ -1,25 +1,20 @@
-import { Injectable, OnModuleDestroy } from '@nestjs/common';
+import { Inject, Injectable, OnModuleDestroy } from '@nestjs/common';
 import { Queue, QueueScheduler } from 'bullmq';
+import Redis from 'ioredis';
 
 @Injectable()
 export class BullMQService implements OnModuleDestroy {
   private purchaseQueue: Queue;
   private scheduler: QueueScheduler;
-
-  private connection = {
-    host: process.env.REDIS_HOST || '127.0.0.1',
-    port: +(process.env.REDIS_PORT || 6379),
-    maxRetriesPerRequest: null,
-    enableReadyCheck: false,
-  };
-
-  constructor() {
+  constructor(
+    @Inject('REDIS_CLIENT') private readonly redis: Redis,
+  ) {
     this.scheduler = new QueueScheduler('PURCHASE_QUEUE', {
-      connection: this.connection,
+      connection: this.redis,
     });
 
     this.purchaseQueue = new Queue('PURCHASE_QUEUE', {
-      connection: this.connection,
+      connection: this.redis,
     });
   }
 

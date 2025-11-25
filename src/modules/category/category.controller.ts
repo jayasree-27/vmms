@@ -4,19 +4,20 @@ import { CreateCategoryDto } from './dtos/create-category.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/common/guards/role.guard';
 import { Roles } from 'src/common/decorators/role.decorator';
+import { UserRole } from '../users/entities/user.entity';
 @Controller('category')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
   @Post()
-  @Roles('admin','manager')
+  @Roles(UserRole.STAFF)
   async create(@Body() dto: CreateCategoryDto) {
     return await this.categoryService.create(dto);
   }
 
   @Get()
-  @Roles('admin','manager')
+  //@Roles('admin','manager')
   async findAll() {
     return await this.categoryService.findAll();
   }

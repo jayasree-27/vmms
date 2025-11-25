@@ -1,34 +1,45 @@
-import { Body, Controller, Delete, Get, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller,  Post } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto } from './dtos/createUser.dto';
-import { UpdateUserDto } from './dtos/update-user.dto';
+import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
+import { UseGuards } from '@nestjs/common';
+import { Req } from '@nestjs/common';
+import { CreateUserDto } from './dtos/create-user.dto';
+import { AuthService } from '../auth/auth.service';
+import { LoginDto } from './dtos/login.dto';
+import { Roles } from 'src/common/decorators/role.decorator';
+import { UserRole } from './entities/user.entity';
+import { RolesGuard } from 'src/common/guards/role.guard';
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService,
+    private readonly authService: AuthService
+  ) {}
 
-  @Post()
-  create(@Body() dto: CreateUserDto) {
-    return this.usersService.create(dto);
+  //login for all 
+  @Post('login')
+  login(@Body() dto:LoginDto){
+    return this.authService.login(dto)
   }
 
-  @Get()
-  findAll() {
-    return this.usersService.findAll();
+
+  //customer registration
+  @Post('register')
+  register(@Body() dto:CreateUserDto){
+    return this.usersService.registerCustomer(dto)
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(id);
+  //add user for manager and staff only
+  @UseGuards(JwtAuthGuard,RolesGuard)
+  @Roles(UserRole.ADMIN)
+  @Post('add-user')
+  addUser(@Req() req,@Body() dto:CreateUserDto){
+    return this.usersService.createUser(dto)
   }
 
-  @Put(':id')
-  update(@Param('id') id: string, @Body() dto: UpdateUserDto) {
-    return this.usersService.update(id, dto);
-  }
+  @Post('logout')
+  async logout(@Req() req){
+    const token=req.headers.authorization?.replace('Bearer ','');
 
-  @Delete(':id')
-  delete(@Param('id') id: string) {
-    return this.usersService.delete(id);
+    return this.authService.logout(token);
   }
-
 }

@@ -6,25 +6,26 @@ import {JwtAuthGuard} from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/common/guards/role.guard';
 import { Roles } from 'src/common/decorators/role.decorator';
 import { UpdateSlotDto } from './dto/update-slot.dto';
+import { UserRole } from '../users/entities/user.entity';
 @Controller('slots')
 @UseGuards(JwtAuthGuard,RolesGuard)
 export class SlotController {
   constructor(private readonly slotsService: SlotsService) {}
 
   @Post('restock')
-  @Roles('admin','manager','staff')
+  @Roles(UserRole.STAFF)
   async restock(@Body() dto: RestockSlotDto) {
     return this.slotsService.restockSlot(dto);
   }
 
   @Post('create')
-  @Roles('admin','manager')
+  @Roles(UserRole.MANAGER)
   async create(@Body() dto: CreateSlotDto) {
     return this.slotsService.createSlot(dto);
   }
 
   @Patch(':id')
-  @Roles('admin', 'manager')
+  //@Roles('admin', 'manager')
   async update(@Param('id') id: string, @Body() dto: UpdateSlotDto) {
     return this.slotsService.updateSlot(id, dto);
   }
@@ -35,7 +36,7 @@ export class SlotController {
   }
 
   @Delete(':id')
-  @Roles('admin', 'manager')
+  //@Roles('admin', 'manager')
   async delete(@Param('id') id: string) {
     return this.slotsService.deleteSlot(id);
   }
